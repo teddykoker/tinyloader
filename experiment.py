@@ -22,18 +22,21 @@ class Dataset:
         return np.zeros((3, 32, 32)), 1
 
 
-def train(dataloader, step_time=0.2):
-    start = time.time()
+def train(dataloader, epochs=100, step_time=0.2):
     batches = 0
-    for batch in dataloader:
-        # mimic forward, backward, and update step
-        time.sleep(step_time)
-        batches += 1
+    start = time.time()
+    for epoch in range(epochs):
+        for batch in dataloader:
+            # mimic forward, backward, and update step
+            time.sleep(step_time)
+            batches += 1
 
     end = time.time()
     print(f"\nwall time: {end - start:.4f}")
     print(f"train time: {batches * step_time:.4f}")
     print(f"waiting time: {end - start - batches * step_time:.4f}")
+
+
 
 
 if __name__ == "__main__":
