@@ -1,6 +1,6 @@
 # tinyloader
 
-A tiny multiprocess data loader, inspired by
+A tiny multiprocess data loader in ~100 lines, inspired by
 [`torch.utils.data.DataLoader`](https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader),
 [geohot/tinygrad](https://github.com/geohot/tinygrad), and [karpathy/micrograd](karpathy/micrograd).
 
