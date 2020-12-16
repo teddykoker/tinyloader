@@ -40,8 +40,8 @@ def train(dataloader, epochs=10, step_time=0.2):
 
 def main():
     epochs = 1
-    step_time = 0.3
-    load_time = 0.001
+    step_time = 0.1
+    load_time = 0.0005
     size = 2048
     batch_size = 64
 
@@ -75,7 +75,7 @@ def main():
         with open("data.pkl", "wb") as f:
             pickle.dump(data, f)
 
-    plt.plot(data["num_workers"], data["wall_time"], label="Total Step")
+    plt.plot(data["num_workers"], data["wall_time"], label="Total Step", color="black")
 
     plt.fill_between(
         data["num_workers"],
