@@ -7,6 +7,8 @@ import os
 import matplotlib.pyplot as plt
 import pickle
 
+import sys
+sys.path.append("../")
 from dataloader import DataLoader, NaiveDataLoader
 
 
@@ -39,7 +41,7 @@ def train(dataloader, epochs=10, step_time=0.2):
 
 
 def main():
-    epochs = 1
+    epochs = 10
     step_time = 0.1
     load_time = 0.0005
     size = 2048
@@ -98,6 +100,7 @@ def main():
     plt.xlabel("num_workers")
     plt.ylabel("Time (s) / Step")
     plt.legend()
+    plt.savefig("time.png")
     plt.show()
 
 
