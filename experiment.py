@@ -3,6 +3,9 @@ import time
 import multiprocessing
 import queue
 from itertools import cycle
+import os
+import matplotlib.pyplot as plt
+import pickle
 
 from dataloader import DataLoader, NaiveDataLoader
 
@@ -22,31 +25,81 @@ class Dataset:
         return np.zeros((3, 32, 32)), 1
 
 
-def train(dataloader, epochs=100, step_time=0.2):
-    batches = 0
+def train(dataloader, epochs=10, step_time=0.2):
+    steps = 0
     start = time.time()
     for epoch in range(epochs):
         for batch in dataloader:
             # mimic forward, backward, and update step
             time.sleep(step_time)
-            batches += 1
+            steps += 1
 
     end = time.time()
-    print(f"\nwall time: {end - start:.4f}")
-    print(f"train time: {batches * step_time:.4f}")
-    print(f"waiting time: {end - start - batches * step_time:.4f}")
+    return (end - start) / steps, step_time
 
 
+def main():
+    epochs = 1
+    step_time = 0.3
+    load_time = 0.001
+    size = 2048
+    batch_size = 64
+
+    num_workers = list(range(8 + 1))
+    wall_time = []
+    ds = Dataset(size=size, load_time=load_time)
+
+    try:
+        with open("data.pkl", "rb") as f:
+            data = pickle.load(f)
+
+    except Exception as e:
+        print(e)
+        for nw in num_workers:
+            print(nw)
+            if nw == 0:
+                dl = NaiveDataLoader(ds, batch_size)
+            else:
+                dl = DataLoader(ds, num_workers=nw, batch_size=batch_size)
+            wall, train_time = train(dl, epochs, step_time)
+            wall_time.append(wall)
+
+            del dl
+            time.sleep(1.0)
+
+        data = {
+            "num_workers": num_workers,
+            "wall_time": wall_time,
+            "train_time": train_time,
+        }
+        with open("data.pkl", "wb") as f:
+            pickle.dump(data, f)
+
+    plt.plot(data["num_workers"], data["wall_time"], label="Total Step")
+
+    plt.fill_between(
+        data["num_workers"],
+        data["wall_time"],
+        data["train_time"],
+        color="red",
+        alpha=0.3,
+        label="Data Loading",
+    )
+    plt.fill_between(
+        data["num_workers"],
+        data["train_time"],
+        0,
+        color="green",
+        alpha=0.3,
+        label="Training Step",
+    )
+    # plt.axvline(x=os.cpu_count(), label="Num. CPUs")
+    plt.ylim(0.0)
+    plt.xlabel("num_workers")
+    plt.ylabel("Time (s) / Step")
+    plt.legend()
+    plt.show()
 
 
 if __name__ == "__main__":
-
-    ds = Dataset(size=1024, load_time=0.01)
-    dl = NaiveDataLoader(ds)
-    train(dl, step_time=0.2)
-
-    print("\nmultiprocess:\n")
-
-    dl = DataLoader(ds, num_workers=4, batch_size=64, prefetch_batches=2)
-    train(dl, step_time=0.2)
-    train(dl, step_time=0.2)
+    main()

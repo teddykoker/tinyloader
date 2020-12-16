@@ -44,6 +44,8 @@ def worker_fn(dataset, index_queue, output_queue):
             index = index_queue.get(timeout=0)
         except queue.Empty:
             continue
+        if index is None:
+            break
         output_queue.put((index, dataset[index]))
 
 
@@ -116,3 +118,18 @@ class DataLoader(NaiveDataLoader):
 
         self.index += 1
         return item
+
+    def __del__(self):
+        try:
+            for i, w in enumerate(self.workers):
+                self.index_queues[i].put(None)
+                w.join(timeout=5.0)
+            for q in self.index_queues:
+                q.cancel_join_thread()
+                q.close()
+            self.output_queue.cancel_join_thread()
+            self.output_queue.close()
+        finally:
+            for w in self.workers:
+                if w.is_alive():
+                    w.terminate()
