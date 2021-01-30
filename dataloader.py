@@ -27,7 +27,7 @@ class NaiveDataLoader:
     def __next__(self):
         if self.index >= len(self.dataset):
             raise StopIteration
-        batch_size = min(len(self.dataset) - self.batch_size, self.batch_size)
+        batch_size = min(len(self.dataset) - self.index, self.batch_size)
         return self.collate_fn([self.get() for _ in range(batch_size)])
 
     def get(self):
