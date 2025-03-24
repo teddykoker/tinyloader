@@ -85,7 +85,7 @@ class DataLoader(NaiveDataLoader):
         while (
             self.prefetch_index < len(self.dataset)
             and self.prefetch_index
-            < self.index + 2 * self.num_workers * self.batch_size
+            < self.index + self.prefetch_batches * self.num_workers * self.batch_size
         ):
             # if the prefetch_index hasn't reached the end of the dataset
             # and it is not 2 batches ahead, add indexes to the index queues
